@@ -1,9 +1,9 @@
 [project]
-name = "agent"
-version = "0.0.1"
-description = "Starter template for making a new agent LangGraph."
+name = "skideal-bot"
+version = "0.1.0"
+description = "AI-powered ski trip sales assistant built with LangGraph"
 authors = [
-    { name = "William Fu-Hinthorn", email = "13333726+hinthornw@users.noreply.github.com" },
+    { name = "Moveo" },
 ]
 readme = "README.md"
 license = { text = "MIT" }

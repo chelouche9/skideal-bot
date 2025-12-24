@@ -1,6 +1,6 @@
-"""Streamlit Chat Interface for Shlomo Sixt Car Sales Bot.
+"""Streamlit Chat Interface for SkiDeal Bot.
 
-A beautiful Hebrew chat interface for demoing the car sales agent to clients.
+A beautiful chat interface for demoing the ski trip sales agent.
 """
 
 import sys
@@ -27,62 +27,160 @@ logger.info("Environment loaded")
 
 # Page configuration
 st.set_page_config(
-    page_title="שלמה סיקסט - יועץ רכב AI",
-    page_icon="🚗",
+    page_title="SkiDeal - יועץ חופשות סקי",
+    page_icon="⛷️",
     layout="centered",
     initial_sidebar_state="collapsed",
 )
 
-# Custom CSS for Hebrew RTL support and styling
+# Custom CSS for styling with full Hebrew RTL support
 st.markdown("""
 <style>
-    /* RTL support for Hebrew */
+    /* Import fonts - Hebrew-friendly */
+    @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+    
+    /* Global RTL and Hebrew font */
+    html, body, [class*="css"] {
+        direction: rtl;
+        text-align: right;
+        font-family: 'Heebo', 'Poppins', sans-serif;
+    }
+    
+    /* Main background - snowy gradient */
+    .stApp {
+        background: linear-gradient(135deg, #1a2a6c 0%, #2d4a9c 50%, #4a6baf 100%);
+    }
+    
+    /* RTL support for chat messages */
     .stChatMessage {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    /* Chat message content RTL */
+    [data-testid="stChatMessage"] {
+        direction: rtl;
+    }
+    
+    [data-testid="stChatMessageContent"] {
+        direction: rtl;
+        text-align: right;
+        font-size: 16px;
+        line-height: 1.8;
+        font-family: 'Heebo', sans-serif;
+    }
+    
+    /* Chat message content paragraphs */
+    [data-testid="stChatMessageContent"] p {
         direction: rtl;
         text-align: right;
     }
     
     /* Make the chat input RTL */
-    .stChatInput > div > div > textarea {
+    .stChatInput > div > div > textarea,
+    .stChatInput textarea,
+    [data-testid="stChatInput"] textarea {
+        direction: rtl;
+        text-align: right;
+        font-family: 'Heebo', sans-serif;
+    }
+    
+    /* Chat input placeholder */
+    .stChatInput textarea::placeholder {
         direction: rtl;
         text-align: right;
     }
     
     /* Style the title */
-    h1 {
+    h1, h2, h3 {
         text-align: center;
-        color: #1f4788;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #ffffff;
+        font-family: 'Heebo', sans-serif;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
     
-    /* Style chat messages */
+    /* Chat container styling */
     .stChatMessage {
-        border-radius: 10px;
-        padding: 10px;
-        margin: 5px 0;
+        border-radius: 15px;
+        padding: 12px;
+        margin: 8px 0;
+        backdrop-filter: blur(10px);
     }
     
-    /* User message styling */
-    [data-testid="stChatMessageContent"] {
-        font-size: 16px;
-        line-height: 1.6;
-    }
-    
-    /* Assistant avatar */
+    /* Assistant avatar - keep on right for RTL */
     .stChatMessage img {
         border-radius: 50%;
+    }
+    
+    /* Sidebar RTL */
+    [data-testid="stSidebar"] {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    [data-testid="stSidebar"] .stMarkdown {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    /* Sidebar styling */
+    .css-1d391kg {
+        background: linear-gradient(180deg, #1e3a5f 0%, #0d1b2a 100%);
+    }
+    
+    /* Markdown text color and RTL */
+    .stMarkdown {
+        color: #e0e0e0;
+        direction: rtl;
+        text-align: right;
+    }
+    
+    .stMarkdown p, .stMarkdown li, .stMarkdown ul, .stMarkdown ol {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    /* Lists should be RTL */
+    ul, ol {
+        direction: rtl;
+        padding-right: 20px;
+        padding-left: 0;
+    }
+    
+    /* Button styling */
+    .stButton > button {
+        background: linear-gradient(90deg, #00b4d8 0%, #0077b6 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-family: 'Heebo', sans-serif;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .stButton > button:hover {
+        background: linear-gradient(90deg, #00d4f8 0%, #0097d6 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 180, 216, 0.4);
+    }
+    
+    /* Spinner text */
+    .stSpinner > div {
+        color: #90e0ef !important;
+        direction: rtl;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # Title and description
-st.title("🚗 שלמה סיקסט - יועץ רכב AI")
+st.title("⛷️ SkiDeal - יועץ חופשות סקי")
 st.markdown("""
 <div style='text-align: center; direction: rtl;'>
-    <p style='color: #666; font-size: 14px;'>
-        שלום! אני היועץ הדיגיטלי של שלמה סיקסט. אני כאן כדי לעזור לך למצוא את הרכב המושלם עבורך.
+    <p style='color: #b8d4e8; font-size: 15px; font-family: Heebo, sans-serif;'>
+        שלום! אני היועץ הדיגיטלי של SkiDeal. אני כאן כדי לעזור לך למצוא את חופשת הסקי המושלמת.
         <br>
-        שאל אותי על רכבים זמינים, מחירים, ומפרטים טכניים! 🚘
+        שאל אותי על מלונות סקי, קייטנות לילדים, ואתרי סקי מובילים באירופה! 🏔️
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -95,7 +193,23 @@ if "messages" not in st.session_state:
     # Add welcome message
     st.session_state.messages.append({
         "role": "assistant",
-        "content": "שלום! אני סוכן המכירות הדיגיטלי של שלמה סיקסט. 😊\n\nאני כאן כדי לעזור לך למצוא את הרכב המתאים ביותר לצרכים שלך!\n\nספר לי, מה אתה מחפש? משפחתי? צעיר וחסכוני? יוקרה?"
+        "content": """שלום וברוכים הבאים ל-SkiDeal! ❄️🎿
+
+אני כאן כדי לעזור לך לתכנן את חופשת הסקי המושלמת!
+
+יש לנו מלונות נפלאים באתרי הסקי הטובים ביותר באירופה:
+🇦🇩 **אנדורה** - פאס דה לה קאסה, סולדאו, וואל נורד
+🇧🇬 **בולגריה** - בנסקו
+🇬🇪 **גיאורגיה** - גודאורי
+🇮🇹 **איטליה** - פאסו טונלה, סלה רונדה, צרביניה
+🇫🇷 **צרפת** - ואל טורנס, לז-ארק, אבוריאז
+🇦🇹 **אוסטריה** - אישגיל, זולדן, סאן אנטון
+
+ספר לי, מה אתה מחפש? 
+- 👨‍👩‍👧‍👦 חופשה משפחתית עם ילדים?
+- 💑 בריחה רומנטית לזוג?
+- ⛷️ אקשן לגולשים מנוסים?
+- 🎉 חופשה עם חברים?"""
     })
 
 if "thread_id" not in st.session_state:
@@ -105,7 +219,7 @@ if "thread_id" not in st.session_state:
 
 # Display chat history
 for message in st.session_state.messages:
-    with st.chat_message(message["role"], avatar="🚗" if message["role"] == "assistant" else "👤"):
+    with st.chat_message(message["role"], avatar="⛷️" if message["role"] == "assistant" else "👤"):
         st.markdown(message["content"])
 
 # Chat input
@@ -118,7 +232,7 @@ if prompt := st.chat_input("הקלד את השאלה שלך כאן..."):
         st.markdown(prompt)
     
     # Display assistant response with streaming
-    with st.chat_message("assistant", avatar="🚗"):
+    with st.chat_message("assistant", avatar="⛷️"):
         message_placeholder = st.empty()
         full_response = ""
         
@@ -134,7 +248,7 @@ if prompt := st.chat_input("הקלד את השאלה שלך כאן..."):
             logger.debug(f"Config: {config}")
             
             # Stream the response from the agent
-            with st.spinner("מחפש את המידע הטוב ביותר עבורך..."):
+            with st.spinner("מחפש את חופשת הסקי המושלמת עבורך... 🏔️"):
                 # Prepare all messages for the agent (entire conversation history)
                 all_messages = []
                 for msg in st.session_state.messages:
@@ -191,7 +305,7 @@ if prompt := st.chat_input("הקלד את השאלה שלך כאן..."):
 
 # Sidebar with info
 with st.sidebar:
-    st.markdown("## 📊 מידע על השיחה")
+    st.markdown("## 🏔️ מידע על השיחה")
     st.markdown(f"**מספר הודעות:** {len(st.session_state.messages)}")
     st.markdown(f"**Thread ID:** `{st.session_state.thread_id[:8]}...`")
     
@@ -207,28 +321,44 @@ with st.sidebar:
     
     st.markdown("## ℹ️ אודות")
     st.markdown("""
-    **שלמה סיקסט AI Bot**
+    **SkiDeal Bot** ⛷️
     
-    יועץ רכב אינטליגנטי המופעל על ידי:
+    יועץ חופשות סקי חכם המופעל על ידי:
     - 🤖 Claude Sonnet 4.5
     - 🔗 LangChain v1
     - 🔄 LangGraph
     
     **יכולות:**
-    - חיפוש רכבים זמינים
-    - פרטים טכניים ומחירים
-    - המלצות מותאמות אישית
-    - תמיכה בעברית בלבד
+    - 🏨 חיפוש מלונות סקי
+    - 🎿 קייטנות סקי לילדים
+    - 🏔️ מידע על אתרי סקי
+    - 💬 המלצות מותאמות אישית
     """)
     
     st.markdown("---")
-    st.markdown("🏢 **שלמה סיקסט** - אחד מספקי הרכב המובילים בישראל")
+    
+    st.markdown("## 🌍 יעדים זמינים")
+    st.markdown("""
+    🇦🇩 **אנדורה** - פאס דה לה קאסה, סולדאו, וואל נורד
+    
+    🇧🇬 **בולגריה** - בנסקו
+    
+    🇬🇪 **גיאורגיה** - גודאורי
+    
+    🇮🇹 **איטליה** - פאסו טונלה, סלה רונדה, צרביניה
+    
+    🇫🇷 **צרפת** - ואל טורנס, לז-ארק, אבוריאז, טין, אלפ דואז
+    
+    🇦🇹 **אוסטריה** - אישגיל, זולדן, סאן אנטון, מאיירהופן
+    """)
+    
+    st.markdown("---")
+    st.markdown("🎿 **SkiDeal** - החופשה הלבנה שלך מתחילה כאן!")
 
 # Footer
 st.markdown("---")
 st.markdown("""
-<div style='text-align: center; color: #888; font-size: 12px; direction: rtl;'>
-    פותח עם ❤️ באמצעות Claude Sonnet 4.5 | © 2025 שלמה סיקסט
+<div style='text-align: center; color: #90caf9; font-size: 12px; direction: rtl; font-family: Heebo, sans-serif;'>
+    פותח עם ❄️ באמצעות Claude Sonnet 4.5 | © 2025 SkiDeal
 </div>
 """, unsafe_allow_html=True)
-
