@@ -30,7 +30,7 @@ st.set_page_config(
     page_title="SkiDeal - יועץ חופשות סקי",
     page_icon="⛷️",
     layout="centered",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="collapsed",  # No sidebar used
 )
 
 # Custom CSS for styling with full Hebrew RTL support
@@ -113,22 +113,6 @@ st.markdown("""
         border-radius: 50%;
     }
     
-    /* Sidebar RTL */
-    [data-testid="stSidebar"] {
-        direction: rtl;
-        text-align: right;
-    }
-    
-    [data-testid="stSidebar"] .stMarkdown {
-        direction: rtl;
-        text-align: right;
-    }
-    
-    /* Sidebar styling */
-    .css-1d391kg {
-        background: linear-gradient(180deg, #1e3a5f 0%, #0d1b2a 100%);
-    }
-    
     /* Markdown text color and RTL */
     .stMarkdown {
         color: #e0e0e0;
@@ -169,6 +153,11 @@ st.markdown("""
     .stSpinner > div {
         color: #90e0ef !important;
         direction: rtl;
+    }
+    
+    /* Hide sidebar completely */
+    [data-testid="stSidebar"], [data-testid="collapsedControl"] {
+        display: none !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -302,58 +291,6 @@ if prompt := st.chat_input("הקלד את השאלה שלך כאן..."):
     
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})
-
-# Sidebar with info
-with st.sidebar:
-    st.markdown("## 🏔️ מידע על השיחה")
-    st.markdown(f"**מספר הודעות:** {len(st.session_state.messages)}")
-    st.markdown(f"**Thread ID:** `{st.session_state.thread_id[:8]}...`")
-    
-    st.markdown("---")
-    
-    st.markdown("## 🔧 הגדרות")
-    if st.button("🗑️ נקה שיחה", use_container_width=True):
-        st.session_state.messages = []
-        st.session_state.thread_id = str(__import__("uuid").uuid4())
-        st.rerun()
-    
-    st.markdown("---")
-    
-    st.markdown("## ℹ️ אודות")
-    st.markdown("""
-    **SkiDeal Bot** ⛷️
-    
-    יועץ חופשות סקי חכם המופעל על ידי:
-    - 🤖 Claude Sonnet 4.5
-    - 🔗 LangChain v1
-    - 🔄 LangGraph
-    
-    **יכולות:**
-    - 🏨 חיפוש מלונות סקי
-    - 🎿 קייטנות סקי לילדים
-    - 🏔️ מידע על אתרי סקי
-    - 💬 המלצות מותאמות אישית
-    """)
-    
-    st.markdown("---")
-    
-    st.markdown("## 🌍 יעדים זמינים")
-    st.markdown("""
-    🇦🇩 **אנדורה** - פאס דה לה קאסה, סולדאו, וואל נורד
-    
-    🇧🇬 **בולגריה** - בנסקו
-    
-    🇬🇪 **גיאורגיה** - גודאורי
-    
-    🇮🇹 **איטליה** - פאסו טונלה, סלה רונדה, צרביניה
-    
-    🇫🇷 **צרפת** - ואל טורנס, לז-ארק, אבוריאז, טין, אלפ דואז
-    
-    🇦🇹 **אוסטריה** - אישגיל, זולדן, סאן אנטון, מאיירהופן
-    """)
-    
-    st.markdown("---")
-    st.markdown("🎿 **SkiDeal** - החופשה הלבנה שלך מתחילה כאן!")
 
 # Footer
 st.markdown("---")
