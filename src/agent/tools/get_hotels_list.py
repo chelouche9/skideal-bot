@@ -3,7 +3,7 @@
 import json
 from langchain_core.tools import tool
 
-from agent.ski_data import (
+from agent.data.resorts import (
     get_hotels,
     get_hotels_by_country,
     get_hotels_by_resort,

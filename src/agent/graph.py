@@ -20,6 +20,8 @@ from agent.tools import (
     get_hotel_info,
     search_hotels_by_criteria,
     get_resort_camps_info,
+    get_camp_resorts,
+    get_camps_info,
     handoff_to_agent,
 )
 
@@ -38,6 +40,8 @@ tools = [
     get_hotel_info,
     search_hotels_by_criteria,
     get_resort_camps_info,
+    get_camp_resorts,
+    get_camps_info,
     handoff_to_agent,
 ]
 

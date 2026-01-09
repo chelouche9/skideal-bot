@@ -8,8 +8,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-# Path to the JSONL data file
-DATA_FILE = Path(__file__).parent.parent.parent / "super_info_bot_rows.jsonl"
+# Path to the JSONL data file (in the same directory as this file)
+DATA_FILE = Path(__file__).parent / "super_info_bot_rows.jsonl"
 
 
 def load_all_data() -> list[dict[str, Any]]:
@@ -203,3 +203,4 @@ def get_data_summary() -> dict[str, Any]:
 HOTELS_DATA = get_hotels()
 RESORTS_INFO = get_resorts_info()
 DATA_SUMMARY = get_data_summary()
+
