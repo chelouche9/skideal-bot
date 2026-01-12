@@ -22,6 +22,7 @@ from agent.tools import (
     get_resort_camps_info,
     get_camp_resorts,
     get_camps_info,
+    get_kosher_info,
     handoff_to_agent,
 )
 
@@ -42,6 +43,7 @@ tools = [
     get_resort_camps_info,
     get_camp_resorts,
     get_camps_info,
+    get_kosher_info,
     handoff_to_agent,
 ]
 
