@@ -222,7 +222,6 @@ if prompt := st.chat_input("הקלד את השאלה שלך כאן..."):
     
     # Display assistant response with streaming
     with st.chat_message("assistant", avatar="⛷️"):
-        message_placeholder = st.empty()
         full_response = ""
         
         try:
@@ -234,60 +233,38 @@ if prompt := st.chat_input("הקלד את השאלה שלך כאן..."):
             }
             
             logger.info(f"🚀 Starting agent with prompt: {prompt[:50]}...")
-            logger.debug(f"Config: {config}")
             
-            # Stream the response from the agent
             with st.spinner("מחפש את חופשת הסקי המושלמת עבורך... 🏔️"):
                 # Prepare all messages for the agent (entire conversation history)
                 all_messages = []
                 for msg in st.session_state.messages:
                     all_messages.append({"role": msg["role"], "content": msg["content"]})
                 
-                # Invoke the agent with streaming - use dict format per LangChain docs
-                event_count = 0
-                for event in graph.stream(
-                    {"messages": all_messages},
-                    config=config,
-                    stream_mode="values"
-                ):
-                    event_count += 1
-                    logger.debug(f"📦 Event {event_count}: {type(event)}")
-                    logger.debug(f"   Keys: {event.keys() if isinstance(event, dict) else 'N/A'}")
-                    
-                    # Get the last message from the agent
-                    if "messages" in event and len(event["messages"]) > 0:
-                        last_message = event["messages"][-1]
-                        logger.debug(f"   Last message type: {type(last_message)}")
-                        logger.debug(f"   Has content attr: {hasattr(last_message, 'content')}")
-                        
-                        # Check if it's an AI message
-                        if hasattr(last_message, "content"):
-                            content = last_message.content
-                            logger.debug(f"   Content type: {type(content)}")
-                            logger.debug(f"   Content value: {str(content)[:100]}")
-                            
-                            if content:
-                                full_response = str(content)
-                                message_placeholder.markdown(full_response + "▌")
+                # Invoke the agent and get final response
+                result = graph.invoke({"messages": all_messages}, config=config)
                 
-                logger.info(f"✅ Streaming completed after {event_count} events")
+                # Get the last AI message from the result
+                if "messages" in result and len(result["messages"]) > 0:
+                    last_message = result["messages"][-1]
+                    if hasattr(last_message, "content") and last_message.content:
+                        full_response = str(last_message.content)
                 
-                # Remove cursor
+                logger.info("✅ Agent completed")
+                
                 if full_response:
-                    message_placeholder.markdown(full_response)
+                    st.markdown(full_response)
                 else:
                     logger.warning("⚠️ No response generated")
                     full_response = "מצטער, לא קיבלתי תשובה. נסה שוב."
-                    message_placeholder.markdown(full_response)
+                    st.markdown(full_response)
                 
         except Exception as e:
             logger.error(f"❌ Error occurred: {type(e).__name__}: {str(e)}")
             import traceback
             logger.error(f"Traceback:\n{traceback.format_exc()}")
             
-            error_message = f"מצטער, נתקלתי בבעיה: {str(e)}\n\nבבקשה נסה שוב או שאל שאלה אחרת."
-            full_response = error_message
-            message_placeholder.markdown(error_message)
+            full_response = f"מצטער, נתקלתי בבעיה: {str(e)}\n\nבבקשה נסה שוב או שאל שאלה אחרת."
+            st.markdown(full_response)
     
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})

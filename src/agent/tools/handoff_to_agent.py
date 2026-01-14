@@ -1,7 +1,62 @@
 """Tool for handing off conversation to a human agent."""
 
 import json
+import re
 from langchain_core.tools import tool
+
+
+def validate_phone(phone: str) -> tuple[bool, str]:
+    """Validate Israeli phone number format."""
+    if not phone:
+        return True, ""  # Optional field
+    
+    # Remove spaces and dashes
+    cleaned = phone.replace(" ", "").replace("-", "")
+    
+    # Israeli mobile: 05XXXXXXXX (10 digits)
+    israeli_mobile = re.match(r'^05\d{8}$', cleaned)
+    
+    # International format: +9725XXXXXXXX (13 chars)
+    intl_format = re.match(r'^\+9725\d{8}$', cleaned)
+    
+    # Israeli landline: 0X-XXXXXXX (9-10 digits)
+    israeli_landline = re.match(r'^0[2-9]\d{7,8}$', cleaned)
+    
+    if israeli_mobile or intl_format or israeli_landline:
+        return True, ""
+    
+    return False, f"מספר טלפון לא תקין: '{phone}'. פורמט נדרש: 0501234567 או +972501234567"
+
+
+def validate_email(email: str) -> tuple[bool, str]:
+    """Validate email format."""
+    if not email:
+        return True, ""  # Optional field
+    
+    # Basic email regex
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if re.match(pattern, email):
+        return True, ""
+    
+    return False, f"אימייל לא תקין: '{email}'. פורמט נדרש: example@domain.com"
+
+
+def validate_name(name: str) -> tuple[bool, str]:
+    """Validate that name has at least first and last name."""
+    if not name:
+        return True, ""  # Optional field
+    
+    # Clean up the name - remove extra spaces
+    cleaned = " ".join(name.strip().split())
+    
+    # Check if name has at least 2 words (first + last name)
+    # Works for Hebrew names like "יונתן שלוש" or English "John Smith"
+    words = cleaned.split()
+    if len(words) >= 2:
+        return True, ""
+    
+    # Single word name is not enough
+    return False, f"שם לא מלא: '{name}'. נדרש שם פרטי ושם משפחה"
 
 
 @tool
@@ -24,6 +79,9 @@ def handoff_to_agent(
 ) -> str:
     """Hand off the conversation to a human sales agent with all collected details.
     
+    IMPORTANT: This tool validates inputs! If validation fails, you must collect
+    the correct information from the customer before calling again.
+    
     Use this tool when:
     - Customer is ready to book/close the deal
     - Payment details need to be collected
@@ -31,13 +89,13 @@ def handoff_to_agent(
     - Customer explicitly asks to speak with a human
     
     Args:
-        customer_name: Customer's name in Hebrew
-        phone: Customer's phone number
-        email: Customer's email address
+        customer_name: Customer's FULL name (first + last) in Hebrew
+        phone: Phone in format 05XXXXXXXX (10 digits) or +9725XXXXXXXX (13 chars)
+        email: Email in format example@domain.com
         destination: Preferred destination/resort/country
-        dates: Travel dates or date range
-        num_people: Number of travelers
-        ages: Ages of travelers (especially children)
+        dates: Travel dates (can be flexible like "מרץ" or exact like "15-22/03")
+        num_people: Number of travelers (must be a number)
+        ages: Ages of travelers (especially children) - must be numeric ages
         ski_level: Skiing experience level (beginner/intermediate/advanced)
         needs_ski_school: Whether they need ski school/lessons
         needs_equipment: Whether they need equipment rental
@@ -48,8 +106,34 @@ def handoff_to_agent(
         additional_notes: Any other relevant information from the conversation
     
     Returns:
-        Confirmation message with handoff summary.
+        Confirmation message with handoff summary, or validation errors if inputs are invalid.
     """
+    # Validate inputs
+    validation_errors = []
+    
+    # Validate phone
+    is_valid, error = validate_phone(phone)
+    if not is_valid:
+        validation_errors.append(error)
+    
+    # Validate email
+    is_valid, error = validate_email(email)
+    if not is_valid:
+        validation_errors.append(error)
+    
+    # Validate name
+    is_valid, error = validate_name(customer_name)
+    if not is_valid:
+        validation_errors.append(error)
+    
+    # If there are validation errors, return them
+    if validation_errors:
+        return json.dumps({
+            "סטטוס": "שגיאת אימות",
+            "הודעה": "יש לתקן את הפרטים הבאים לפני העברה לנציג:",
+            "שגיאות": validation_errors,
+        }, ensure_ascii=False, indent=2)
+    
     summary = {
         "סוג_פעולה": "העברה לנציג אנושי",
         "פרטי_לקוח": {},
@@ -104,4 +188,3 @@ def handoff_to_agent(
         "הודעה": "פרטי הלקוח הועברו לנציג אנושי שייצור קשר בהקדם.",
         "סיכום": summary,
     }, ensure_ascii=False, indent=2)
-
