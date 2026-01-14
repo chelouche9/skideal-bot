@@ -271,6 +271,34 @@ if prompt := st.chat_input("הקלד את השאלה שלך כאן..."):
 
 # Footer
 st.markdown("---")
+
+# Export conversation button in footer
+if len(st.session_state.messages) > 1:  # Only show if there's more than welcome message
+    def format_conversation():
+        """Format conversation for export."""
+        lines = ["=" * 50, "SkiDeal - סיכום שיחה", "=" * 50, ""]
+        for msg in st.session_state.messages:
+            role = "🤖 שני (SkiDeal)" if msg["role"] == "assistant" else "👤 לקוח"
+            lines.append(f"{role}:")
+            lines.append(msg["content"])
+            lines.append("")
+            lines.append("-" * 30)
+            lines.append("")
+        return "\n".join(lines)
+    
+    from datetime import datetime
+    filename = f"skideal_chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        st.download_button(
+            label="📥 ייצוא שיחה",
+            data=format_conversation(),
+            file_name=filename,
+            mime="text/plain",
+            use_container_width=True,
+        )
+
 st.markdown("""
 <div style='text-align: center; color: #90caf9; font-size: 12px; direction: rtl; font-family: Heebo, sans-serif;'>
     פותח עם ❄️ באמצעות Claude Sonnet 4.5 | © 2025 SkiDeal
