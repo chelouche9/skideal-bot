@@ -216,25 +216,25 @@ if prompt := st.chat_input("הקלד את השאלה שלך כאן..."):
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     
-    # Display user message
+    # Display user message immediately
     with st.chat_message("user", avatar="👤"):
         st.markdown(prompt)
     
-    # Display assistant response with streaming
+    # Show loading state while processing
     with st.chat_message("assistant", avatar="⛷️"):
-        full_response = ""
-        
-        try:
-            # Prepare input for the agent
-            config = {
-                "configurable": {
-                    "thread_id": st.session_state.thread_id
+        with st.spinner("מחפש את חופשת הסקי המושלמת עבורך... 🏔️"):
+            full_response = ""
+            
+            try:
+                # Prepare input for the agent
+                config = {
+                    "configurable": {
+                        "thread_id": st.session_state.thread_id
+                    }
                 }
-            }
-            
-            logger.info(f"🚀 Starting agent with prompt: {prompt[:50]}...")
-            
-            with st.spinner("מחפש את חופשת הסקי המושלמת עבורך... 🏔️"):
+                
+                logger.info(f"🚀 Starting agent with prompt: {prompt[:50]}...")
+                
                 # Prepare all messages for the agent (entire conversation history)
                 all_messages = []
                 for msg in st.session_state.messages:
@@ -251,23 +251,23 @@ if prompt := st.chat_input("הקלד את השאלה שלך כאן..."):
                 
                 logger.info("✅ Agent completed")
                 
-                if full_response:
-                    st.markdown(full_response)
-                else:
+                if not full_response:
                     logger.warning("⚠️ No response generated")
                     full_response = "מצטער, לא קיבלתי תשובה. נסה שוב."
-                    st.markdown(full_response)
                 
-        except Exception as e:
-            logger.error(f"❌ Error occurred: {type(e).__name__}: {str(e)}")
-            import traceback
-            logger.error(f"Traceback:\n{traceback.format_exc()}")
-            
-            full_response = f"מצטער, נתקלתי בבעיה: {str(e)}\n\nבבקשה נסה שוב או שאל שאלה אחרת."
-            st.markdown(full_response)
+            except Exception as e:
+                logger.error(f"❌ Error occurred: {type(e).__name__}: {str(e)}")
+                import traceback
+                logger.error(f"Traceback:\n{traceback.format_exc()}")
+                
+                full_response = f"מצטער, נתקלתי בבעיה: {str(e)}\n\nבבקשה נסה שוב או שאל שאלה אחרת."
+        
+        # Display the response (after spinner completes)
+        st.markdown(full_response)
     
-    # Add assistant response to chat history
+    # Add assistant response to chat history and rerun to clean up
     st.session_state.messages.append({"role": "assistant", "content": full_response})
+    st.rerun()
 
 # Footer
 st.markdown("---")
